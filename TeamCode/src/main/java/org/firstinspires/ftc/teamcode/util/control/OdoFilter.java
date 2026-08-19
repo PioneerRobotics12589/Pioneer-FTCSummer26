@@ -4,14 +4,14 @@ import java.util.function.DoubleSupplier;
 
 // Dynamic Complementary Filter Implementation
 public class OdoFilter {
-    private double alpha;
-    private double maxAcceleration;
-    private DoubleSupplier pinVel, pinAccel, optoVel;
+    private final double baseAlpha;
+    private final double maxAcceleration;
+    private final DoubleSupplier pinVel, pinAccel, optoVel;
     private double position;
     private long lastTime;
 
     public OdoFilter(double alpha, double maxAccel, DoubleSupplier pinpointVel, DoubleSupplier pinpointAccel, DoubleSupplier opticalVel) {
-        this.alpha = alpha;
+        this.baseAlpha = alpha;
         this.maxAcceleration = maxAccel;
         this.pinVel = pinpointVel;
         this.pinAccel = pinpointAccel;
@@ -20,14 +20,16 @@ public class OdoFilter {
     }
 
     public double run() {
-        double thisTime = System.nanoTime();
+        long thisTime = System.nanoTime();
         double dt = (thisTime - lastTime) / (10e9);
 
-        alpha = Math.min(1.0, Math.max(0.1, pinAccel.getAsDouble()/maxAcceleration));
+        double alpha = Math.min(baseAlpha, Math.max(0.1, pinAccel.getAsDouble()/maxAcceleration));
 
         double filterVel = alpha * pinVel.getAsDouble() + (1 - alpha) * optoVel.getAsDouble();
 
         position += filterVel * dt;
+
+        lastTime = thisTime;
 
         return position;
     }

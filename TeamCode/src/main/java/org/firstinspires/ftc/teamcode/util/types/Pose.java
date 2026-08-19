@@ -1,0 +1,79 @@
+package org.firstinspires.ftc.teamcode.util.types;
+
+import androidx.annotation.NonNull;
+
+public class Pose {
+    public double x, y, heading;
+
+    public Pose(double x, double y, double heading) {
+        this.x = x;
+        this.y = y;
+        this.heading = heading;
+    }
+
+    public Pose(Point point, double heading) {
+        this.x = point.x;
+        this.y = point.y;
+        this.heading = heading;
+    }
+
+    public Pose(Pose newPose) {
+        this.x = newPose.x;
+        this.y = newPose.y;
+        this.heading = newPose.heading;
+    }
+
+    public Point toPoint() {
+        return new Point(x, y);
+    }
+
+    /**
+     * Checks if another pose is within [-range, range] inches of the parent point
+     *
+     * @param p      Comparison pose
+     * @param xRange Range of comparison on the x axis (in)
+     * @param yRange Range of comparison on the y axis (in)
+     * @param hRange Range of comparison for heading (rad)
+     * @return if p is within [-range, range] of pose
+     */
+    public boolean withinRange(Pose p, double xRange, double yRange, double hRange) {
+        boolean withinX = (p.x >= x - xRange && p.x <= x + xRange);
+        boolean withinY = (p.y >= y - yRange && p.y <= y + yRange);
+        boolean withinHeading = (p.heading >= heading - hRange && p.heading <= heading + hRange);
+        return withinX && withinY && withinHeading;
+    }
+
+    public Pose add(Pose newPose) {
+        return new Pose(x + newPose.x, y + newPose.y, heading + newPose.heading);
+    }
+
+    public Pose add(double x_, double y_, double h_) {
+        return new Pose(x + x_, y + y_, heading + h_);
+    }
+
+    public Pose relativeTransform(double distFor, double distLat, double rot) {
+        double x_ = x + distFor*Math.cos(heading) + distLat*Math.sin(heading);
+        double y_ = y + distFor*Math.sin(heading) + distLat*Math.cos(heading);
+        double h_ = heading + rot;
+
+        return new Pose(x_, y_, h_);
+    }
+
+    public Pose rotate(Point origin, double angle) {
+        double x_ = origin.x + (x - origin.x) * Math.cos(angle) - (y - origin.y) * Math.sin(angle);
+        double y_ = origin.y + (x - origin.x) * Math.sin(angle) + (y - origin.y) * Math.cos(angle);
+        double h_ = heading + angle;
+
+        return new Pose(x_, y_, h_);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "X: " + (int) (x * 1000) / 1000.0 + ", Y: " + (int) (y * 1000) / 1000.0 + ", H: " + (int) (Math.toDegrees(heading) * 1000) / 1000.0;
+    }
+
+    public boolean equals(Pose other) {
+        return (x == other.x) && (y == other.y) && (heading == other.heading);
+    }
+}
