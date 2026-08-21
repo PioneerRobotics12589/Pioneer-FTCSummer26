@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.util.types;
 
 import androidx.annotation.NonNull;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+
 public class Pose {
     public double x, y, heading;
 
@@ -23,8 +25,22 @@ public class Pose {
         this.heading = newPose.heading;
     }
 
+    public Pose() {
+        this.x = 0;
+        this.y = 0;
+        this.heading = 0;
+    }
+
     public Point toPoint() {
         return new Point(x, y);
+    }
+
+    public SparkFunOTOS.Pose2D toPose2D() {
+        return new SparkFunOTOS.Pose2D(x, y, heading);
+    }
+
+    public static Pose toPose(SparkFunOTOS.Pose2D pose2D) {
+        return new Pose(pose2D.x, pose2D.y, pose2D.h);
     }
 
     /**
